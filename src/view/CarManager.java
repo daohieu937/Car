@@ -2,6 +2,8 @@ package view;
 
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Scanner;
 
@@ -9,17 +11,23 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import controller.CarDao;
+import controller.MaxPriceDao;
 import model.Car;
+import model.MaxPrice;
 
 public class CarManager {
 	public static Scanner scanner = new Scanner(System.in);
 	private List<Car> carList;
 	private CarDao carDao;
+	private List<MaxPrice> maxPriceList;
+	private MaxPriceDao maxPriceDao;
 	Validate validate = new Validate();
 
 	public CarManager() {
 		carDao = new CarDao();
 		carList = carDao.read();
+		maxPriceDao = new MaxPriceDao();
+		maxPriceList = maxPriceDao.read();
 	}
 
 	public void add() {
@@ -47,7 +55,7 @@ public class CarManager {
 				System.out.println("Nhap lai hang xe:");
 				carList.get(i).setHangXe(validate.inputHang());
 				System.out.println("Nhap lai gia xe:");
-				carList.get(i).setGia(scanner.nextLong());
+				carList.get(i).setGia(validate.inputGia());
 				break;
 			}
 		}
@@ -108,24 +116,36 @@ public class CarManager {
 	}
 
 	public void showMaxPrice() {
+		List<Car> carMaxList = new ArrayList<Car>();
 		int size = carList.size();
+		Date date = new Date();
 		for (int i = 0; i < size; i++) {
 			if (maxPrice() == carList.get(i).getGia()) {
 				System.out.format("%2d", carList.get(i).getId());
 				System.out.format("%10s", carList.get(i).getTenXe());
 				System.out.format("%10s", carList.get(i).getHangXe());
 				System.out.format("%10d", carList.get(i).getGia());
+				System.out.println("  " + date);
+				int id = carList.get(i).getId();
+				String tenXe = carList.get(i).getTenXe();
+				String hangXe = carList.get(i).getHangXe();
+				long giaXe = carList.get(i).getGia();
+				Car carMax = new Car(id, tenXe, hangXe, giaXe);
+				carMaxList.add(carMax);
+				MaxPrice maxPrice = new MaxPrice(carMaxList, date);
+				maxPriceList.add(maxPrice);
+				maxPriceDao.write(maxPriceList);
 			}
 		}
 	}
 	
 	public void showJson() {
-		//chuyen collection -> json text
+		// chuyen collection -> json text
 		Gson gson = new Gson();
 		String jsonData = gson.toJson(carList);
 		System.out.println(jsonData);
 		
-		//chuyen json text -> collection
+		// chuyen json text -> collection
 		Type objectType = new TypeToken<List<Car>>(){}.getType();
 		List<Car> listCar = gson.fromJson(jsonData, objectType);
 		for (Car car : listCar) {

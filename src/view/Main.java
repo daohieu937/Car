@@ -28,7 +28,7 @@ public class Main {
 				carManager.show();
 				break;
 			case "5":
-				carManager.showMaxPrice();
+				maxPrice();
 				break;
 			case "6":
 				carManager.showJson();;
@@ -48,6 +48,18 @@ public class Main {
 		}
 	}
 
+	public static void maxPrice() {
+		CarManager carManager = new CarManager();
+		while(true) {
+			carManager.showMaxPrice();
+			try {
+				Thread.sleep(2000);
+			} catch (Exception e) {
+				
+			}
+		}
+	}
+	
 	public static void showMenu() {
 		System.out.println("");
 		System.out.println("--menu--");
